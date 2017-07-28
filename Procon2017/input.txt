@@ -1,0 +1,16 @@
+10
+1
+b g b g r r w r g b
+r r g w g r r g g b
+b r b b r r g r b g
+g r b r g g r g g r
+g w b b b w g r r w
+g r r g g g g r b b
+g r g b r b r b r w
+b b g g g g w b w b
+b w b r g r r r g b
+g b g b w w b r g w
+b g r g r b b g r r
+r b b b r r g r r r
+r g b g r g r r r b
+g g b b g r g g r r
