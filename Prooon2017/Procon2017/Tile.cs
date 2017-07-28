@@ -18,7 +18,8 @@ namespace Procon2017
             Red,
             Blue,
             Green,
-            Wall
+            Wall,
+            Ball
         } 
     }
 }

@@ -26,7 +26,7 @@ namespace Procon2017
 
         public void CalculateAllRoute(Coor[] startBallPosition)
         {
-            var boad = new bool[Size, Size];
+            var boad = new BoadState[Size, Size];
             var points = new int[3];
             var balls = new Ball[BallNum];
             var Route = new List<int>();
@@ -37,21 +37,25 @@ namespace Procon2017
 
                 var startTile = OriginalBoad[startBallPosition[i].X, startBallPosition[i].Y];
                 balls[i].Points[(int)startTile.State] = 1;
-                boad[startBallPosition[i].X, startBallPosition[i].Y] = true;
+                boad[startBallPosition[i].X, startBallPosition[i].Y].IsPassed = true;
             }
             CoverAllIncline(-1, boad, points, balls, Route);
         }
 
-        public void CoverAllIncline(int lastIncline, bool[,] lastBoad, int[] lastPoints, Ball[] lastBalls, List<int> lastRoute)
+        public void CoverAllIncline(int lastIncline, BoadState[,] lastBoad, int[] lastPoints, Ball[] lastBalls, List<int> lastRoute)
         {
+            if (lastRoute.Count() > 2 && lastRoute[0] == 3 && lastRoute[1] == 2 && lastRoute[2] == 3)
+            {
+
+            }
             //全ての玉が外に出たら最大値を比較して、終了
             if (lastBalls.FirstOrDefault(b => b.IsOut == false) == null)
             {
-                var tmpPointSum = lastPoints.Sum();
-                if (tmpPointSum == 19)
+                if (lastPoints.Sum() == 17)
                 {
 
                 }
+                var tmpPointSum = lastPoints.Sum();
                 if (tmpPointSum > MaxPoint)
                 {
                     MaxPoint = tmpPointSum;
@@ -60,7 +64,7 @@ namespace Procon2017
                 return;
             }
 
-            var currentBoad = new bool[Size, Size];
+            var currentBoad = new BoadState[Size, Size];
 
             var currentPoints = new int[3];
 
@@ -110,42 +114,67 @@ namespace Procon2017
         /// ポイントが増える移動をした場合はtrue
         /// </summary>
         /// <param name="vector"></param>
-        public bool InclineField(int vector, bool[,] boad, int[] points, Ball[] balls, List<int> route)
+        public bool InclineField(int vector, BoadState[,] boad, int[] points, Ball[] balls, List<int> route)
         {
-            var IND = 0;
             var includesPoints = false;
-
-            //壁にぶつかるか外に出るまで移動
-            while (true)
+            switch (vector)
             {
-                var next = AddVector(balls[IND].Coor, MoveOne(vector));
+            case 0:
+                balls = balls.OrderBy(b => b.Coor.X).ToArray();
+                break;
+            case 1:
+                balls = balls.OrderBy(b => b.Coor.Y).ToArray();
+                break;
+            case 2:
+                balls = balls.OrderByDescending(b => b.Coor.X).ToArray();
+                break;
+            case 3:
+                balls = balls.OrderByDescending(b => b.Coor.Y).ToArray();
+                break;
+            }
 
-                if (IsOut(next, vector))
+            for (int i = 0; i < BallNum; i++)
+            {
+                if (balls[i].IsOut)
                 {
-                    //外に出た場合、ポイントを加算して終了
-                    balls[IND].IsOut = true;
-                    var endStatus = Ends[vector][vector % 2 == 0 ? next.Y : next.X];
-                    points[(int)endStatus] += balls[IND].Points[(int)endStatus];
-                    includesPoints = true;
-                    break;
+                    continue;
                 }
-                else if (OriginalBoad[next.X, next.Y].State == Tile.TileState.Wall)
+                boad[balls[i].Coor.X, balls[i].Coor.Y].IsBall = false;
+                //壁にぶつかるかボールにぶつかるか外に出るまで移動
+                while (true)
                 {
-                    break;
-                }
-                else
-                {   
-                    //
-                    if (!boad[next.X, next.Y])
+                    var next = AddVector(balls[i].Coor, MoveOne(vector));
+
+                    if (IsOut(next, vector))
                     {
-                        balls[IND].Points[(int)OriginalBoad[next.X, next.Y].State]++;
-                        boad[next.X, next.Y] = true;
-                        includesPoints = true;
-                    }
-                    balls[IND].Coor = next;
 
+                        //外に出た場合、ポイントを加算して終了
+                        balls[i].IsOut = true;
+                        var endStatus = Ends[vector][vector % 2 == 0 ? next.Y : next.X];
+                        points[(int)endStatus] += balls[i].Points[(int)endStatus];
+                        includesPoints = true;
+
+                        break;
+                    }
+                    else if (OriginalBoad[next.X, next.Y].State == Tile.TileState.Wall || boad[next.X, next.Y].IsBall)
+                    {
+                        boad[balls[i].Coor.X, balls[i].Coor.Y].IsBall = true;
+                        break;
+                    }
+                    else
+                    {
+                        if (!boad[next.X, next.Y].IsPassed)
+                        {
+                            balls[i].Points[(int)OriginalBoad[next.X, next.Y].State]++;
+                            boad[next.X, next.Y].IsPassed = true;
+                            includesPoints = true;
+                        }
+                        balls[i].Coor = next;
+
+                    }
                 }
             }
+
             route.Add(vector);
 
             return includesPoints;
@@ -153,7 +182,7 @@ namespace Procon2017
         }
 
         //lastの値をcurrentにコピーします
-        private void CopyDataToCurrent(bool[,] lastBoad, int[] lastPoints, Ball[] lastBalls, List<int> lastRoute, bool[,] currentBoad, int[] currentPoints, Ball[] currentBalls, ref List<int> currentRoute)
+        private void CopyDataToCurrent(BoadState[,] lastBoad, int[] lastPoints, Ball[] lastBalls, List<int> lastRoute, BoadState[,] currentBoad, int[] currentPoints, Ball[] currentBalls, ref List<int> currentRoute)
         {
             for (int x = 0; x < Size; x++)
             {
@@ -171,8 +200,12 @@ namespace Procon2017
                 currentBalls[i] = new Ball()
                 {
                     Coor = lastBalls[i].Coor,
-                    Points = lastBalls[i].Points
+                    IsOut = lastBalls[i].IsOut
                 };
+                for (int j = 0; j < 3; j++)
+                {
+                    currentBalls[i].Points[j] = lastBalls[i].Points[j];
+                }
             }
             currentRoute = new List<int>(lastRoute);
         }
