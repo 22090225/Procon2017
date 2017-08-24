@@ -71,10 +71,11 @@
     <Compile Include="Ball.cs" />
     <Compile Include="BoadState.cs" />
     <Compile Include="Coor.cs" />
+    <Compile Include="Edge.cs" />
+    <Compile Include="Graph.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Field.cs" />
-    <Compile Include="ReaderAndWriter.cs" />
     <Compile Include="Tile.cs" />
   </ItemGroup>
   <ItemGroup>

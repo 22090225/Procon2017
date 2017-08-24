@@ -11,23 +11,26 @@ namespace Procon2017
         static void Main(string[] args)
         {
             var calculateStartTime = DateTime.UtcNow;
-
-            Field.InitializeField();
-
-            Coor[] maxStartPosition = null;
-            int[] maxRoute = null;
-            int maxpoint = 0;
+            Graph.InitializeField();
+            Graph.CreateGraph();
 
 
-            var combi = new bool[Field.Size, Field.Size];
-            var startBallPosition = new Coor[Field.Size];
 
-            var coor = startBallPosition[Field.Size - 1];
+            //Field.InitializeField();
+            //Coor[] maxStartPosition = null;
+            //int[] maxRoute = null;
+            //int maxpoint = 0;
 
-            for (int i = 0; i < Field.Size; i++)
-            {
-                startBallPosition[i] = Next(startBallPosition[i]);
-            }
+
+            //var combi = new bool[Field.Size, Field.Size];
+            //var startBallPosition = new Coor[Field.BallNum];
+
+            //var coor = startBallPosition[Field.Size - 1];
+
+            //for (int i = 0; i < Field.Size; i++)
+            //{
+            //    startBallPosition[i] = Next(startBallPosition[i]);
+            //}
 
 
             //for (int x0 = 0; x0 < Field.Size; x0++)
@@ -44,7 +47,7 @@ namespace Procon2017
             //                {
             //                    continue;
             //                }
-            //                var startBallPosition = new Coor[Field.BallNum];
+            //                startBallPosition = new Coor[Field.BallNum];
             //                startBallPosition[0] = new Coor(x0, y0);
             //                startBallPosition[1] = new Coor(x1, y1);
             //                var field = new Field();
@@ -81,7 +84,6 @@ namespace Procon2017
             //    }
             //}
 
-            //var startBallPosition = new Coor[Field.BallNum];
             //startBallPosition[0] = new Coor(0, 0);
             //startBallPosition[1] = new Coor(2, 1);
             //var field = new Field();
@@ -95,9 +97,9 @@ namespace Procon2017
 
 
 
-            //出力
-            Write(maxStartPosition, maxRoute);
-            Console.WriteLine("最大点" + maxpoint);
+            ////出力
+            //Write(maxStartPosition, maxRoute);
+            //Console.WriteLine("最大点" + maxpoint);
             Console.WriteLine(DateTime.UtcNow.Subtract(calculateStartTime).TotalMilliseconds + "ミリ秒くらい時間がかりました！");
 
 

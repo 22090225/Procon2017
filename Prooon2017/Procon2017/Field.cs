@@ -94,7 +94,7 @@ namespace Procon2017
                 else
                 {
                     //全方向動かした場合は何もせず終了(重複ループ)
-                    if (i == 3 || ( lastIncline == 3 && i == 2 ))
+                    if (i == 3 || (lastIncline == 3 && i == 2))
                     {
                         return;
                     }
@@ -119,18 +119,18 @@ namespace Procon2017
             var includesPoints = false;
             switch (vector)
             {
-            case 0:
-                balls = balls.OrderBy(b => b.Coor.X).ToArray();
-                break;
-            case 1:
-                balls = balls.OrderBy(b => b.Coor.Y).ToArray();
-                break;
-            case 2:
-                balls = balls.OrderByDescending(b => b.Coor.X).ToArray();
-                break;
-            case 3:
-                balls = balls.OrderByDescending(b => b.Coor.Y).ToArray();
-                break;
+                case 0:
+                    balls = balls.OrderBy(b => b.Coor.X).ToArray();
+                    break;
+                case 1:
+                    balls = balls.OrderBy(b => b.Coor.Y).ToArray();
+                    break;
+                case 2:
+                    balls = balls.OrderByDescending(b => b.Coor.X).ToArray();
+                    break;
+                case 3:
+                    balls = balls.OrderByDescending(b => b.Coor.Y).ToArray();
+                    break;
             }
 
             for (int i = 0; i < BallNum; i++)
@@ -218,16 +218,16 @@ namespace Procon2017
         {
             switch (vector)
             {
-            case 0:
-                return new Coor(-1, 0);
-            case 1:
-                return new Coor(0, -1);
-            case 2:
-                return new Coor(1, 0);
-            case 3:
-                return new Coor(0, 1);
-            default:
-                throw new Exception("存在しないベクトルです");
+                case 0:
+                    return new Coor(-1, 0);
+                case 1:
+                    return new Coor(0, -1);
+                case 2:
+                    return new Coor(1, 0);
+                case 3:
+                    return new Coor(0, 1);
+                default:
+                    throw new Exception("存在しないベクトルです");
             }
         }
 
@@ -235,16 +235,16 @@ namespace Procon2017
         {
             switch (vector)
             {
-            case 0:
-                return coor.X == -1;
-            case 1:
-                return coor.Y == -1;
-            case 2:
-                return coor.X == Size;
-            case 3:
-                return coor.Y == Size;
-            default:
-                throw new Exception("存在しないベクトルです");
+                case 0:
+                    return coor.X == -1;
+                case 1:
+                    return coor.Y == -1;
+                case 2:
+                    return coor.X == Size;
+                case 3:
+                    return coor.Y == Size;
+                default:
+                    throw new Exception("存在しないベクトルです");
             }
         }
 
