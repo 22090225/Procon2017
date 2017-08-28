@@ -71,7 +71,7 @@
     <Compile Include="Ball.cs" />
     <Compile Include="BoadState.cs" />
     <Compile Include="Coor.cs" />
-    <Compile Include="Edge.cs" />
+    <Compile Include="Node.cs" />
     <Compile Include="Graph.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

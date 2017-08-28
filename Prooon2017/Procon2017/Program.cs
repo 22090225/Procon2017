@@ -100,7 +100,7 @@ namespace Procon2017
             ////出力
             //Write(maxStartPosition, maxRoute);
             //Console.WriteLine("最大点" + maxpoint);
-            Console.WriteLine(DateTime.UtcNow.Subtract(calculateStartTime).TotalMilliseconds + "ミリ秒くらい時間がかりました！");
+            //Console.WriteLine(DateTime.UtcNow.Subtract(calculateStartTime).TotalMilliseconds + "ミリ秒くらい時間がかりました！");
 
 
         }

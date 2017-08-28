@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Procon2017
 {
@@ -10,28 +8,28 @@ namespace Procon2017
     {
         public static int Size;
         public static int BallNum;
-        public static string[][] Ends;
-        public static string[,] OriginalBoad;
+        public static int[][] Ends;
+        public static int[,] OriginalBoad;
 
         public static void InitializeField()
         {
             Size = int.Parse(Console.In.ReadLine());
             BallNum = int.Parse(Console.In.ReadLine());
 
-            OriginalBoad = new string[Size, Size];
-            Ends = new string[4][];
+            OriginalBoad = new int[Size, Size];
+            Ends = new int[4][];
             for (int i = 0; i < Size; i++)
             {
                 var line = (Console.In.ReadLine()).Split(' ')
                     .ToArray();
                 for (int j = 0; j < Size; j++)
                 {
-                    OriginalBoad[j, i] = line[j];
+                    OriginalBoad[j, i] = StringToInt(line[j]);
                 }
             }
             for (int i = 0; i < 4; i++)
             {
-                Ends[i] = (Console.In.ReadLine()).Split(' ');
+                Ends[i] = (Console.In.ReadLine()).Split(' ').Select(str => StringToInt(str)).ToArray();
             }
         }
 
@@ -45,14 +43,14 @@ namespace Procon2017
             {
                 for (int y = 0; y < Size; y++)
                 {
-                    if (OriginalBoad[x, y] == "w")
+                    if (OriginalBoad[x, y] == 3)
                     {
                         var coor = new Coor(x, y);
                         for (int vector = 0; vector < 4; vector++)
                         {
                             var nextCoor = MoveOne(coor, vector);
                             if (!IsOut(nextCoor, vector) &&
-                                OriginalBoad[nextCoor.X, nextCoor.Y] != "w" &&
+                                OriginalBoad[nextCoor.X, nextCoor.Y] != 3 &&
                                 nodes[nextCoor.X, nextCoor.Y] == null
                                 )
                             {
@@ -70,12 +68,14 @@ namespace Procon2017
             }
 
             //ノードの紐つけ
-            foreach (var item in nodeList.Select((v, i) => new { v, i }))
+            //foreach (var item in nodeList.Select((v, i) => new { v, i }))
+            foreach (var node in nodeList)
             {
                 for (int vector = 0; vector < 4; vector++)
                 {
-                    var coor = item.v.Coor;
-
+                    var coor = node.Coor;
+                    node.Points[vector][OriginalBoad[coor.X, coor.Y]]++;
+                    var points = new int[3];
                     while (true)
                     {
                         coor = MoveOne(coor, vector);
@@ -84,13 +84,15 @@ namespace Procon2017
                         {
                             break;
                         }
-                        if (OriginalBoad[coor.X, coor.Y] == "w")
+                        if (OriginalBoad[coor.X, coor.Y] == 3)
                         {
                             //一歩戻る
                             coor = MoveOne(coor, (vector + 2) % 4);
-                            item.v.Edge[vector] = nodes[coor.X, coor.Y];
+                            node.Edge[vector] = nodes[coor.X, coor.Y];
+                            node.Points[vector][OriginalBoad[coor.X, coor.Y]]--;
                             break;
                         }
+                        node.Points[vector][OriginalBoad[coor.X, coor.Y]]++;
                     }
                 }
             }
@@ -143,16 +145,38 @@ namespace Procon2017
                     g.Exists(node => Array.IndexOf(node.Edge, null) != -1)
                 )
                 .ToList();
-            //出力
-            //for (int i = 0; i < nodeList.Count(); i++)
-            //{
-            //    for (int j = 0; j < nodeList.Count(); j++)
-            //    {
-            //        Console.Write(matrix[i, j] + " ");
-            //    }
-            //    Console.Write("\n");
 
-            //}
+            var oneKatamukeList = new List<Node>[4];
+            var katamukePoints = new int[4];
+            for (int vector = 0; vector < 4; vector++)
+            {
+                var list = nodeList
+                    .Where(node => node.Edge[vector] == null)
+                    .Select(node => new KeyValuePair<Node, int>(node, node.Points[vector][Ends[vector][vector % 2 == 0 ? node.Coor.Y : node.Coor.X]]))
+                    .OrderByDescending(item => item.Value)
+                    .Where((point, rank) => rank < BallNum);
+                oneKatamukeList[vector] = list.Select(item => item.Key).ToList();
+
+                katamukePoints[vector] = list.Sum(item => item.Value);
+            }
+
+            var maxPoint = 0;
+            var maxVector = 0;
+            for (int vector = 0; vector < 4; vector++)
+            {
+                if (katamukePoints[vector] > maxPoint)
+                {
+                    maxPoint = katamukePoints[vector];
+                    maxVector = vector;
+                }
+            }
+
+            //出力
+            foreach(var node in oneKatamukeList[maxVector])
+            {
+                Console.WriteLine(node.Coor.X + " " + node.Coor.Y);
+            }
+            Console.WriteLine(maxVector);
 
 
 
@@ -193,6 +217,23 @@ namespace Procon2017
                     return coor.Y == Size;
                 default:
                     throw new Exception("存在しないベクトルです");
+            }
+        }
+
+        private static int StringToInt(string str)
+        {
+            switch (str)
+            {
+                case "r":
+                    return 0;
+                case "b":
+                    return 1;
+                case "g":
+                    return 2;
+                case "w":
+                    return 3;
+                default:
+                    throw new Exception("存在しない色です");
             }
         }
     }
