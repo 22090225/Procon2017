@@ -11,96 +11,109 @@ namespace Procon2017
         static void Main(string[] args)
         {
             var calculateStartTime = DateTime.UtcNow;
-            Graph.InitializeField();
-            Graph.CreateGraph();
+
+            Field.InitializeField();
+
+            //サイズ10 ボール2 (全網羅)
+            if (Field.Size == 10 && Field.BallNum == 2)
+            {
+                Coor[] maxStartPosition = null;
+                int[] maxRoute = null;
+                int maxpoint = 0;
+                var startBallPosition = new Coor[Field.BallNum];
+
+                //long maxCalcuTime = 0;
+                for (int x0 = 0; x0 < Field.Size; x0++)
+                {
+                    for (int y0 = 0; y0 < Field.Size; y0++)
+                    {
+                        for (int x1 = 0; x1 < Field.Size; x1++)
+                        {
+                            for (int y1 = 0; y1 < Field.Size; y1++)
+                            {
+                                //var stTimer = DateTime.UtcNow.Millisecond;
+                                if (Field.Boad[x0, y0] == 3 ||
+                                    Field.Boad[x1, y1] == 3 ||
+                                    (x0 == x1 && y0 == y1)
+                                    )
+                                {
+                                    continue;
+                                }
+                                startBallPosition = new Coor[Field.BallNum];
+                                startBallPosition[0] = new Coor(x0, y0);
+                                startBallPosition[1] = new Coor(x1, y1);
+                                var calculate = new Calculate();
+                                calculate.CalculateAllRoute(startBallPosition);
+                                if (calculate.MaxPoint > maxpoint)
+                                {
+                                    maxpoint = calculate.MaxPoint;
+                                    maxStartPosition = startBallPosition;
+                                    maxRoute = calculate.MaxRoute;
+                                }
+
+                                //if (DateTime.UtcNow.Millisecond - stTimer > maxCalcuTime)
+                                //{
+                                //    maxCalcuTime = DateTime.UtcNow.Millisecond - stTimer;
+                                //}
+                            }
+                        }
+                    }
+                }
+                //出力
+                Write(maxStartPosition, maxRoute);
+                //Console.WriteLine("最大点" + maxpoint);
+                //Console.WriteLine("最大計算時間" + maxCalcuTime);
+                //Console.WriteLine(DateTime.UtcNow.Subtract(calculateStartTime).TotalMilliseconds + "ミリ秒くらい時間がかりました！");
+            }
+            else
+            {
+                Graph.CreateGraph();
+
+                var groups = Graph.Groups.OrderByDescending(g => g.Count()).ToList();
+                var sum = groups.Sum(g => g.Count);
+                var excludeFukurokoji = groups
+                    .Where(g =>
+                        g.Exists(node => Array.IndexOf(node.Edge, null) != -1)
+                    )
+                    .ToList();
+
+                var oneKatamukeList = new List<Node>[4];
+                var katamukePoints = new int[4];
+                for (int vector = 0; vector < 4; vector++)
+                {
+                    var list = Graph.Nodes
+                        .Where(node => node.Edge[vector] == null)
+                        .Select(node => new KeyValuePair<Node, int>(node, node.Points[vector][Field.Ends[vector][vector % 2 == 0 ? node.Coor.Y : node.Coor.X]]))
+                        .OrderByDescending(item => item.Value)
+                        .Where((point, rank) => rank < Field.BallNum);
+                    oneKatamukeList[vector] = list.Select(item => item.Key).ToList();
+
+                    katamukePoints[vector] = list.Sum(item => item.Value);
+                }
+
+                var maxPoint = 0;
+                var maxVector = 0;
+                for (int vector = 0; vector < 4; vector++)
+                {
+                    if (katamukePoints[vector] > maxPoint)
+                    {
+                        maxPoint = katamukePoints[vector];
+                        maxVector = vector;
+                    }
+                }
+
+                //出力
+                foreach (var node in oneKatamukeList[maxVector])
+                {
+                    Console.WriteLine(node.Coor.X + " " + node.Coor.Y);
+                }
+                Console.WriteLine(maxVector);
+
+                //Console.WriteLine("最大点" + maxPoint);
+                //Console.WriteLine(DateTime.UtcNow.Subtract(calculateStartTime).TotalMilliseconds + "ミリ秒くらい時間がかりました！");
+            }
 
 
-
-            //Field.InitializeField();
-            //Coor[] maxStartPosition = null;
-            //int[] maxRoute = null;
-            //int maxpoint = 0;
-
-
-            //var combi = new bool[Field.Size, Field.Size];
-            //var startBallPosition = new Coor[Field.BallNum];
-
-            //var coor = startBallPosition[Field.Size - 1];
-
-            //for (int i = 0; i < Field.Size; i++)
-            //{
-            //    startBallPosition[i] = Next(startBallPosition[i]);
-            //}
-
-
-            //for (int x0 = 0; x0 < Field.Size; x0++)
-            //{
-            //    for (int y0 = 0; y0 < Field.Size; y0++)
-            //    {
-            //        for (int x1 = 0; x1 < Field.Size; x1++)
-            //        {
-            //            for (int y1 = 0; y1 < Field.Size; y1++)
-            //            {
-            //                if (Field.OriginalBoad[x0, y0].State == Tile.TileState.Wall ||
-            //                    Field.OriginalBoad[x1, y1].State == Tile.TileState.Wall
-            //                    )
-            //                {
-            //                    continue;
-            //                }
-            //                startBallPosition = new Coor[Field.BallNum];
-            //                startBallPosition[0] = new Coor(x0, y0);
-            //                startBallPosition[1] = new Coor(x1, y1);
-            //                var field = new Field();
-            //                field.CalculateAllRoute(startBallPosition);
-            //                if (field.MaxPoint > maxpoint)
-            //                {
-            //                    maxpoint = field.MaxPoint;
-            //                    maxStartPosition = startBallPosition;
-            //                    maxRoute = field.MaxRoute;
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
-            //for (int x = 0; x < Field.Size; x++)
-            //{
-            //    for (int y = 0; y < Field.Size; y++)
-            //    {
-            //        if (Field.OriginalBoad[x, y].State == Tile.TileState.Wall)
-            //        {
-            //            continue;
-            //        }
-            //        var startBallPosition = new Coor[Field.BallNum];
-            //        startBallPosition[0] = new Coor(x, y);
-            //        var field = new Field();
-            //        field.CalculateAllRoute(startBallPosition);
-            //        if (field.MaxPoint > maxpoint)
-            //        {
-            //            maxpoint = field.MaxPoint;
-            //            maxStartPosition = startBallPosition;
-            //            maxRoute = field.MaxRoute;
-            //        }
-            //    }
-            //}
-
-            //startBallPosition[0] = new Coor(0, 0);
-            //startBallPosition[1] = new Coor(2, 1);
-            //var field = new Field();
-            //field.CalculateAllRoute(startBallPosition);
-            //if (field.MaxPoint > maxpoint)
-            //{
-            //    maxpoint = field.MaxPoint;
-            //    maxStartPosition = startBallPosition;
-            //    maxRoute = field.MaxRoute;
-            //}
-
-
-
-            ////出力
-            //Write(maxStartPosition, maxRoute);
-            //Console.WriteLine("最大点" + maxpoint);
-            //Console.WriteLine(DateTime.UtcNow.Subtract(calculateStartTime).TotalMilliseconds + "ミリ秒くらい時間がかりました！");
 
 
         }
